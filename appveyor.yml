@@ -23,9 +23,6 @@ install:
   - python -m pip install codecov
   - ps: if (($env:CONFIGURATION) -eq "Debug" ) { choco install codecov }
 
-# fetch repository as zip archive
-shallow_clone: true
-
 # Win32 and x64 are CMake-compatible solution platform names.
 # This allows us to pass %PLATFORM% to CMake -A.
 platform:
