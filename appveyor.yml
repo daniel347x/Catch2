@@ -62,11 +62,7 @@ test_script:
   - cd Build
   - set CTEST_OUTPUT_ON_FAILURE=1
   - ctest --verbose -j 2 -C %CONFIGURATION% -D ExperimentalMemCheck
-  - ps: |
-      if (($env:CONFIGURATION) -eq "Debug" ) {
-          Get-Content cobertura1.xml
-      }
-  - codecov --no-color --disable gcov -f cobertura1.xml cobertura2.xml cobertura3.xml cobertura4.xml cobertura5.xml
+  - codecov --root .. --no-color --disable gcov -f cobertura1.xml cobertura2.xml cobertura3.xml cobertura4.xml cobertura5.xml
 # This is for chocolatey codecov
 #  - codecov -f cobertura1.xml cobertura2.xml cobertura3.xml cobertura4.xml cobertura5.xml
 
