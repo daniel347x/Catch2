@@ -48,14 +48,22 @@ std::string catch_path(std::string path) {
     return path.substr(0, end);
 }
 
+std::string windowsify_path(std::string path) {
+    for (auto& c : path) {
+        if (c == '/') {
+            c = '\\';
+        }
+    }
+    return path;
+}
+
 void exec_cmd(std::string const& cmd, int log_num, std::string const& path) {
     std::array<char, 128> buffer;
 #if defined(_WIN32)
     auto real_cmd = "OpenCppCoverage --export_type cobertura:cobertura" + std::to_string(log_num)
-        + ".xml --quiet " + /*"--sources " + path */ + " -- " + cmd;
+        + ".xml --quiet " + "--sources " + path + " -- " + cmd;
     // ToDo: Escape / to \ in path
     std::cout << "=== Marker ===: Cmd: " << real_cmd << '\n';
-    (void)path;
     std::shared_ptr<FILE> pipe(_popen(real_cmd.c_str(), "r"), _pclose);
 #else // Just for testing, in the real world we will always work under WIN32
     (void)log_num; (void)path;
@@ -89,5 +97,5 @@ int main(int argc, char** argv) {
         return lhs + ' ' + rhs;
     });
 
-    exec_cmd(cmdline, num, catch_path(args[0]));
+    exec_cmd(cmdline, num, windowsify_path(catch_path(args[0])));
 }
