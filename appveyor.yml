@@ -19,6 +19,10 @@ init:
   - ps: Update-AppveyorBuild -Version "$($env:APPVEYOR_REPO_BRANCH) - $($env:APPVEYOR_REPO_COMMIT)"
   - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
+install:
+  - python -m pip install codecov
+  - ps: if (($env:CONFIGURATION) -eq "Debug" ) { choco install codecov }
+
 # fetch repository as zip archive
 shallow_clone: true
 
@@ -46,7 +50,6 @@ before_build:
   - cmake -Hmisc -Bbuild-misc -A%PLATFORM%
   - cmake --build build-misc
   - cmake -H. -BBuild -A%PLATFORM% -DUSE_WMAIN=%wmain% -DBUILD_EXAMPLES=ON -DMEMORYCHECK_COMMAND=build-misc\Debug\CoverageHelper.exe -DMEMORYCHECK_COMMAND_OPTIONS=--sep-- -DMEMORYCHECK_TYPE=Valgrind
-  - ps: if (($env:CONFIGURATION) -eq "Debug" ) { choco install codecov }
 
 
 # build with MSBuild
@@ -62,8 +65,10 @@ test_script:
   - ps: |
       if (($env:CONFIGURATION) -eq "Debug" ) {
           Get-Content cobertura1.xml
-          codecov -f cobertura1.xml cobertura2.xml cobertura3.xml cobertura4.xml cobertura5.xml
       }
+  - codecov --no-color --disable gcov -f cobertura1.xml cobertura2.xml cobertura3.xml cobertura4.xml cobertura5.xml
+# This is for chocolatey codecov
+#  - codecov -f cobertura1.xml cobertura2.xml cobertura3.xml cobertura4.xml cobertura5.xml
 
 #on_finish:
 #  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
